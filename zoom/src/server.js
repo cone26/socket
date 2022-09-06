@@ -18,14 +18,16 @@ function onSocketClose() {
   console.log("Disconnected from the Browser");
 }
 
-function onSocketMessage(msg) {
-  console.log(msg.toString());
-}
+// fake DB
+const sockets = [];
+
 wss.on("connection", (socket) => {
   console.log("Connected to the Client ☑️");
+  sockets.push(socket);
   socket.on("close", onSocketClose);
-  socket.on("message", onSocketMessage);
-  socket.send("Hello!!!!!!!");
+  socket.on("message", (msg) => {
+    sockets.forEach((aSocket) => aSocket.send(msg.toString()));
+  });
 });
 
 server.listen(3000, handleListen);
