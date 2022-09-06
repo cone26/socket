@@ -1,5 +1,6 @@
 import express from "express";
 import http from "http";
+import { parse } from "path";
 import WebSocket from "ws";
 const app = express();
 
@@ -24,9 +25,25 @@ const sockets = [];
 wss.on("connection", (socket) => {
   console.log("Connected to the Client ☑️");
   sockets.push(socket);
+  socket["nickname"] = "Anonymous";
   socket.on("close", onSocketClose);
   socket.on("message", (msg) => {
-    sockets.forEach((aSocket) => aSocket.send(msg.toString()));
+    const parsed = JSON.parse(msg);
+    // 스위치문으로 바꿔보기 => 지금은 먼가 에러남 ;;
+    // switch (parsed.type) {
+    //   case "new_message":
+    //     const message = parsed.payload;
+    //     sockets.forEach((aSocket) => aSocket.send(message.toString()));
+    //   case "nickname":
+    //     console.log("it's nickname");
+    // }
+    if (parsed.type === "new_message") {
+      const message = parsed.payload;
+      sockets.forEach((aSocket) => aSocket.send(`${socket.nickname} : ${message.toString()}`));
+      //
+    } else {
+      socket["nickname"] = parsed.payload;
+    }
   });
 });
 
