@@ -30,7 +30,8 @@ io.on("connection", (socket) => {
   });
   socket.on("nickname", (nickname) => (socket["nickname"] = nickname));
 });
-
+// challenge !
+// 유저가 방에 입장하기 전에 닉네임을 물어보기 !
 // function onSocketClose() {
 //   console.log("Disconnected from the Browser");
 // }

@@ -1,8 +1,9 @@
 const socket = io();
 
 const welcome = document.getElementById("welcome");
-const roomForm = welcome.querySelector("form");
+const roomForm = welcome.querySelector("#roomname");
 const room = document.getElementById("room");
+const nameForm = welcome.querySelector("#name");
 
 room.hidden = true;
 
@@ -21,14 +22,12 @@ function showRoom() {
   room.hidden = false;
   h3.innerText = `Room ${roomName}`;
   const messageForm = room.querySelector("#msg");
-  const nameForm = room.querySelector("#name");
   messageForm.addEventListener("submit", handleMessageSubmit);
-  nameForm.addEventListener("submit", handleNicknameSubmit);
 }
 
 function handleNicknameSubmit(e) {
   e.preventDefault();
-  const input = room.querySelector("#name input");
+  const input = welcome.querySelector("#name input");
   socket.emit("nickname", input.value);
   input.value = "";
 }
@@ -51,6 +50,7 @@ function handleMessageSubmit(e) {
 }
 // messageform 이벤트를 show function 안에서 만드는 이유는?? 밖에서 만ㄷ느는 것과 차이점은?
 roomForm.addEventListener("submit", handleRoomSubmit);
+nameForm.addEventListener("submit", handleNicknameSubmit);
 
 socket.on("welcome", (nick) => {
   addMessage(`${nick} joined !`);
