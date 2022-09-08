@@ -14,12 +14,28 @@ const handleListen = () => console.log("Listening on http://localhost:3000");
 const server = http.createServer(app);
 const io = SocketIO(server);
 
+function publicRooms() {
+  const {
+    sockets: {
+      adapter: { sids, rooms },
+    },
+  } = io;
+  const publicRooms = [];
+  rooms.forEach((_, key) => {
+    if (sids.get(key) == undefined) {
+      publicRooms.push(key);
+    }
+  });
+  return publicRooms;
+}
+
 io.on("connection", (socket) => {
   socket["nickname"] = "Anon";
   socket.on("enter_room", (roomName, done) => {
     socket.join(roomName);
     done();
     socket.to(roomName).emit("welcome", socket.nickname);
+    io.sockets.emit("room_change", publicRooms());
   });
   socket.on("new_message", (msg, roomName, done) => {
     socket.to(roomName).emit("new_message", `${socket.nickname}: ${msg}`);
@@ -28,10 +44,12 @@ io.on("connection", (socket) => {
   socket.on("disconnecting", () => {
     socket.rooms.forEach((room) => socket.to(room).emit("bye", socket.nickname));
   });
+  socket.on("disconnect", () => {
+    io.sockets.emit("room_change", publicRooms());
+  });
   socket.on("nickname", (nickname) => (socket["nickname"] = nickname));
 });
-// challenge !
-// 유저가 방에 입장하기 전에 닉네임을 물어보기 !
+// 닉네임 폼처리 방법 좀 ..
 // function onSocketClose() {
 //   console.log("Disconnected from the Browser");
 // }
